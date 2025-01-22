@@ -4,6 +4,7 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -19,7 +20,7 @@ var rootCmd = &cobra.Command{
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
 		if versionFlag, _ := cmd.Flags().GetBool("version"); versionFlag {
-			cmd.Printf("vpc-cidr-manager version: %s\n", Version)
+			fmt.Println("vpc-cidr-manager version:", Version)
 		}
 	},
 }
