@@ -124,7 +124,7 @@ func ReserveCIDR(client *dynamodb.Client, cidr string, vpcID string, vpcName str
 	arnParts := strings.Split(*output.Arn, "/")
 
 	if len(arnParts) > 2 {
-		sessionName := arnParts[2]
+		sessionName = arnParts[2]
 		logger.Debugf("Session name: %s", sessionName)
 	} else {
 		return fmt.Errorf("failed to parse session name from ARN: %s", *output.Arn)
