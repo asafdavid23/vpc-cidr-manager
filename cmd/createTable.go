@@ -19,10 +19,6 @@ var createTableCmd = &cobra.Command{
 
 		logger := logging.NewLogger(logLevel)
 
-		if tableName == "" {
-			logger.Fatal("ERROR: Table name is required, please provide a name with the -n flag")
-		}
-
 		logger.Debug("Initializing DynamoDB client")
 		client, err := internalAws.GetDynamoDBClient()
 		if err != nil {
@@ -53,4 +49,5 @@ func init() {
 	// is called directly, e.g.:
 	// createTableCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	createTableCmd.Flags().StringP("name", "n", "", "The name of the table to create")
+	createTableCmd.MarkFlagRequired("name")
 }
