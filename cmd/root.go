@@ -9,13 +9,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var Version string
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "vpc-cidr-manager",
 	Short: "A CLI tool to manage VPC CIDR block reservations in DynamoDB",
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+	Run: func(cmd *cobra.Command, args []string) {
+		if versionFlag, _ := cmd.Flags().GetBool("version"); versionFlag {
+			cmd.Printf("vpc-cidr-manager version: %s\n", Version)
+		}
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -34,6 +40,7 @@ func init() {
 
 	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.vpc-cidr-manager.yaml)")
 	rootCmd.PersistentFlags().String("log-level", "info", "Set the log level (debug, info, warn, error, fatal)")
+	rootCmd.PersistentFlags().BoolP("version", "v", false, "Display the version of this CLI tool")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.

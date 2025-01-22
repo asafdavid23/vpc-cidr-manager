@@ -20,6 +20,20 @@ var importCidrCmd = &cobra.Command{
 
 		logger := logging.NewLogger(logLevel)
 
+		logger.Debug("Initializing EC2 client")
+		client, err := internalAws.GetEc2Client()
+
+		if err != nil {
+			logger.Fatal(err)
+		}
+
+		logger.Debug("Initializing DynamoDB client")
+		dynamoClient, err := internalAws.GetDynamoDBClient()
+
+		if err != nil {
+			logger.Fatal(err)
+		}
+
 		if account != "" {
 			logger.Debug("Assuming role")
 			_, err := internalAws.AssumeRole(account)
@@ -36,13 +50,6 @@ var importCidrCmd = &cobra.Command{
 				logger.Fatal(err)
 			}
 
-			logger.Debug("Initializing DynamoDB client")
-			dynamoClient, err := internalAws.GetDynamoDBClient()
-
-			if err != nil {
-				logger.Fatal(err)
-			}
-
 			logger.Debug("Importing CIDR blocks")
 			err = internalAws.PushToDynamoDB(dynamoClient, vpcInfo)
 
@@ -53,22 +60,8 @@ var importCidrCmd = &cobra.Command{
 			logger.Infof("CIDR block imported successfully")
 		}
 
-		logger.Debug("Initializing EC2 client")
-		client, err := internalAws.GetEc2Client()
-
-		if err != nil {
-			logger.Fatal(err)
-		}
-
 		logger.Debug("Getting VPC info")
 		vpcInfo, err := internalAws.GetVpcInfo(client, vpcId)
-
-		if err != nil {
-			logger.Fatal(err)
-		}
-
-		logger.Debug("Initializing DynamoDB client")
-		dynamoClient, err := internalAws.GetDynamoDBClient()
 
 		if err != nil {
 			logger.Fatal(err)
