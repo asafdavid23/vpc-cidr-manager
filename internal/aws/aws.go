@@ -169,11 +169,11 @@ func ReserveCIDR(client *dynamodb.Client, cidr string, vpcID string, vpcName str
 		TableName: aws.String(tableName),
 		Item: map[string]types.AttributeValue{
 			"CIDR":       &types.AttributeValueMemberS{Value: cidr},
-			"Status":     &types.AttributeValueMemberS{Value: "reserved"},
-			"ReservedAt": &types.AttributeValueMemberS{Value: fmt.Sprintf("%v", time.Now())},
-			"ReservedBy": &types.AttributeValueMemberS{Value: sessionName},
 			"VpcId":      &types.AttributeValueMemberS{Value: vpcID},
 			"VpcName":    &types.AttributeValueMemberS{Value: vpcName},
+			"ReservedAt": &types.AttributeValueMemberS{Value: fmt.Sprintf("%v", time.Now())},
+			"ReservedBy": &types.AttributeValueMemberS{Value: sessionName},
+			"Status":     &types.AttributeValueMemberS{Value: "reserved"},
 		},
 	})
 	if err != nil {
@@ -206,20 +206,6 @@ func ReleaseCidr(client *dynamodb.Client, cidr string, logger *log.Logger) error
 	}
 	return nil
 }
-
-// func ImportCIDRs() error {
-// 	// Logic for importing CIDRs from live VPCs (mocked here)
-// 	// Implement actual logic to pull CIDR blocks from AWS VPCs and insert them into DynamoDB.
-
-// 	cidrs := []string{"10.0.0.0/24", "10.0.1.0/24"}
-// 	for _, cidr := range cidrs {
-// 		err := ReserveCIDR(cidr)
-// 		if err != nil {
-// 			return fmt.Errorf("failed to import CIDR %s: %w", cidr, err)
-// 		}
-// 	}
-// 	return nil
-// }
 
 // fetchExistingCIDRs retrieves all reserved CIDRs from the DynamoDB table
 func fetchExistingCIDRs(client *dynamodb.Client, tableName string) ([]string, error) {
