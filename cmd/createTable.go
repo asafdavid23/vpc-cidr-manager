@@ -19,19 +19,24 @@ var createTableCmd = &cobra.Command{
 
 		logger := logging.NewLogger(logLevel)
 
+		if tableName == "" {
+			logger.Fatal("ERROR: Table name is required, please provide a name with the -n flag")
+		}
+
 		logger.Debug("Initializing DynamoDB client")
 		client, err := internalAws.GetDynamoDBClient()
 		if err != nil {
 			logger.Fatal(err)
 		}
 
-		err = internalAws.CreateDynamoDBTable(client, tableName)
+		logger.Debug("Creating DynamoDB table")
+		err = internalAws.CreateDynamoDBTable(client, tableName, logger)
 
 		if err != nil {
 			logger.Fatal(err)
 		}
 
-		logger.Info("DynamoDB table created successfully")
+		logger.Infof("%s DynamoDB table created successfully", tableName)
 	},
 }
 
