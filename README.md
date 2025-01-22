@@ -38,7 +38,3 @@ The tool uses environment variables for AWS credentials and DynamoDB table name:
 ## License
 This project is licensed under the MIT License.
 
-```vbnet
-You can copy and paste this directly into your README file. Let me know if you'd like any further modifications!
-```
-
