@@ -8,7 +8,7 @@ A Simple CLI tool to manage AWS VPC CIDR block reservations stored in DynamoDB.
 - **Import CIDR**: Import live AWS VPC CIDRs into DynamoDB.  
 
 ## Installation
-You can install eolctl by downloading the latest release from the [releases page](https://github.com/asafdavid23/vpc-cidr-manager/releases)
+You can install vpc-cidr-manager by downloading the latest release from the [releases page](https://github.com/asafdavid23/vpc-cidr-manager/releases)
 
 ```bash
 curl -LO https://github.com/asafdavid23/vpc-cidr-manager/releases/latest/download/vpc-cidr-manager
