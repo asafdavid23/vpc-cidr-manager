@@ -4,8 +4,13 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"context"
+
 	internalAws "github.com/asafdavid23/vpc-cidr-manager/internal/aws"
 	"github.com/asafdavid23/vpc-cidr-manager/internal/logging"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/spf13/cobra"
 )
 
@@ -17,6 +22,7 @@ var importCidrCmd = &cobra.Command{
 		logLevel, err := cmd.Flags().GetString("log-level")
 		vpcId, err := cmd.Flags().GetString("vpc-id")
 		account, err := cmd.Flags().GetString("account-id")
+		roleName, err := cmd.Flags().GetString("role-name")
 
 		logger := logging.NewLogger(logLevel)
 
@@ -30,13 +36,22 @@ var importCidrCmd = &cobra.Command{
 		logger.Debug("Initializing DynamoDB client")
 		dynamoClient, err := internalAws.GetDynamoDBClient()
 
+		logger.Debug("Initializing STS client")
+
+		if err != nil {
+			logger.Fatal(err)
+		}
+
+		// Initialize the STS client
+		// stsClient, err := internalAws.GetStsClient()
+
 		if err != nil {
 			logger.Fatal(err)
 		}
 
 		if account != "" {
 			logger.Debug("Assuming role")
-			_, err := internalAws.AssumeRole(account)
+			assumedRoleOutput, err := internalAws.AssumeRole(roleName, account)
 
 			if err != nil {
 				logger.Fatal(err)
@@ -44,7 +59,27 @@ var importCidrCmd = &cobra.Command{
 
 			logger.Debug("Role assumed successfully")
 
-			vpcInfo, err := internalAws.GetVpcInfo(client, vpcId)
+			// Extract credentials from the assumed role output
+			assumedCredentials := assumedRoleOutput.Credentials
+
+			// Create a new AWS client with the assumed role credentials
+			assumedCfg, err := config.LoadDefaultConfig(context.TODO(),
+				config.WithCredentialsProvider(
+					credentials.NewStaticCredentialsProvider(
+						*assumedCredentials.AccessKeyId,
+						*assumedCredentials.SecretAccessKey,
+						*assumedCredentials.SessionToken,
+					),
+				),
+			)
+
+			if err != nil {
+				logger.Fatal(err)
+			}
+
+			assumedClient := ec2.NewFromConfig(assumedCfg)
+
+			vpcInfo, err := internalAws.GetVpcInfo(assumedClient, vpcId)
 
 			if err != nil {
 				logger.Fatal(err)
@@ -94,4 +129,5 @@ func init() {
 	importCidrCmd.MarkFlagRequired("vpc-id")
 	importCidrCmd.Flags().StringP("log-level", "l", "info", "The log level to use")
 	importCidrCmd.Flags().StringP("account-id", "a", "", "The AWS account ID to import CIDR blocks from")
+	importCidrCmd.Flags().String("role-name", "", "The role name to assume")
 }
