@@ -32,7 +32,11 @@ jobs:
       - name: Build
         run: |
           mkdir -p output
-          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -ldflags="-X 'vpc-cidr-manager/cmd.Version=${{ github.event.inputs.version }}'" -o output/vpc-cidr-manager-${{ matrix.goos }}-${{ matrix.goarch }} .
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -ldflags="-X 'vpc-cidr-manager/cmd.Version=${{ github.event.inputs.version }}'" -o output/vpc-cidr-manager-${{ matrix.goos }}-${{ matrix.goarch }}.exe .
+          else
+            GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -ldflags="-X 'vpc-cidr-manager/cmd.Version=${{ github.event.inputs.version }}'" -o output/vpc-cidr-manager-${{ matrix.goos }}-${{ matrix.goarch }} .
+          fi
 
       - name: Upload binaries
         uses: actions/upload-artifact@v4
