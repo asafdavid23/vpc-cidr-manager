@@ -41,7 +41,7 @@ func init() {
 
 	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.vpc-cidr-manager.yaml)")
 	rootCmd.PersistentFlags().String("log-level", "info", "Set the log level (debug, info, warn, error, fatal)")
-	rootCmd.PersistentFlags().BoolP("version", "v", false, "Display the version of this CLI tool")
+	rootCmd.PersistentFlags().Bool("version", false, "Display the version of this CLI tool")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
