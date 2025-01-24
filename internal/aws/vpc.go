@@ -14,6 +14,7 @@ import (
 
 type VPCInfo struct {
 	CIDR       string    `json:"cidrBlock"`
+	AccountID  string    `json:"accountId"`
 	VpcID      string    `json:"vpcId"`
 	VpcName    string    `json:"vpcName"`
 	ReservedAt time.Time `json:"reservedAt"`
@@ -88,6 +89,7 @@ func GetVpcInfo(client *ec2.Client, vpcId string) (VPCInfo, error) {
 	for _, vpc := range result.Vpcs {
 		vpcInfo = VPCInfo{
 			CIDR:       *vpc.CidrBlock,
+			AccountID:  *output.Account,
 			VpcID:      *vpc.VpcId,
 			ReservedAt: time.Now(),
 			ReservedBy: sessionName,

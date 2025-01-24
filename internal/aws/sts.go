@@ -6,6 +6,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 )
 
@@ -16,30 +17,17 @@ func GetStsClient() (*sts.Client, error) {
 		return nil, fmt.Errorf("failed to load configuration, %v", err)
 	}
 
-	stsSvc := sts.NewFromConfig(cfg)
+	stsClient := sts.NewFromConfig(cfg)
 
-	return stsSvc, nil
+	return stsClient, nil
 }
 
-func AssumeRole(roleName string, account string) (*sts.AssumeRoleOutput, error) {
-	cfg, err := config.LoadDefaultConfig(context.TODO())
-	if err != nil {
-		return nil, fmt.Errorf("failed to load configuration, %v", err)
-	}
+func AssumeRole(ctx context.Context, cfg aws.Config, stsClient *sts.Client, roleArn string) (aws.Config, error) {
+	// Create a new config with the assumed role credentials
+	creds := stscreds.NewAssumeRoleProvider(stsClient, roleArn)
 
-	stsSvc := sts.NewFromConfig(cfg)
-	roleArn := "arn:aws:iam::" + account + ":role/" + roleName
+	newCfg := cfg.Copy()
+	newCfg.Credentials = aws.NewCredentialsCache(creds)
 
-	input := &sts.AssumeRoleInput{
-		RoleArn:         aws.String(roleArn),
-		RoleSessionName: aws.String("vpc-cidr-manager"),
-	}
-
-	result, err := stsSvc.AssumeRole(context.TODO(), input)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	return newCfg, nil
 }
