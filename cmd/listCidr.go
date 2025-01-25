@@ -13,15 +13,22 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// createTableCmd represents the createTable command
-var createTableCmd = &cobra.Command{
-	Use:   "create-table",
-	Short: "Create the VpcCidrReservations table in DynamoDB",
+// listCidrCmd represents the listCidr command
+var listCidrCmd = &cobra.Command{
+	Use:   "list-cidr",
+	Short: "List all CIDRs in the DynamoDB table",
 	Run: func(cmd *cobra.Command, args []string) {
 		logLevel, err := cmd.Flags().GetString("log-level")
-		tableName, err := cmd.Flags().GetString("name")
 		logger := logging.NewLogger(logLevel)
 		ctx := context.TODO()
+		output, err := cmd.Flags().GetString("output")
+
+		tableName := os.Getenv("DDB_TABLE_NAME")
+
+		if tableName == "" {
+			logger.Fatal("DDB_TABLE_NAME environment variable is not set")
+		}
+
 		region := os.Getenv("AWS_REGION")
 
 		if region == "" {
@@ -36,33 +43,32 @@ var createTableCmd = &cobra.Command{
 
 		logger.Debug("Initializing DynamoDB client")
 		client, err := internalAws.GetDynamoDBClient(ctx, cfg)
-		if err != nil {
-			logger.Fatal(err)
-		}
-
-		logger.Debug("Creating DynamoDB table")
-		err = internalAws.CreateDynamoDBTable(ctx, client, tableName, logger)
 
 		if err != nil {
 			logger.Fatal(err)
 		}
 
-		logger.Infof("%s DynamoDB table created successfully", tableName)
+		logger.Debug("Listing CIDRs")
+		err = internalAws.ListCIDRs(ctx, client, tableName, output)
+
+		if err != nil {
+			logger.Fatal(err)
+		}
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(createTableCmd)
+	rootCmd.AddCommand(listCidrCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// createTableCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// listCidrCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// createTableCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	createTableCmd.Flags().StringP("name", "n", "", "The name of the table to create")
-	createTableCmd.MarkFlagRequired("name")
+	// listCidrCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	listCidrCmd.Flags().StringP("output", "o", "table", "Output format (table, json, yaml)")
+	listCidrCmd.Flags().StringP("log-level", "l", "info", "Log level (debug, info, warn, error, fatal)")
 }

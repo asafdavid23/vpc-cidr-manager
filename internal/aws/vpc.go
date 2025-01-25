@@ -3,10 +3,10 @@ package aws
 import (
 	"context"
 	"fmt"
-	"os"
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
@@ -22,20 +22,7 @@ type VPCInfo struct {
 	Status     string    `json:"status"`
 }
 
-func GetEc2Client() (*ec2.Client, error) {
-	region := os.Getenv("AWS_REGION")
-
-	if region == "" {
-		return nil, fmt.Errorf("AWS_REGION environment variable is not set")
-	}
-
-	cfg, err := config.LoadDefaultConfig(context.TODO(),
-		config.WithRegion(region),
-	)
-
-	if err != nil {
-		return nil, fmt.Errorf("unable to load SDK config, %v", err)
-	}
+func GetEc2Client(cfg aws.Config) (*ec2.Client, error) {
 
 	client := ec2.NewFromConfig(cfg)
 
