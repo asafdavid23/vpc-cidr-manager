@@ -1,0 +1,11 @@
+global:
+  logLevel: debug
+  output: table
+  region: eu-west-1
+
+iam:
+  hubAccountId: '123456789012'
+  assumedRoleName: 'vpc-cidr-manager-role'
+
+dynamodb:
+  tableName: vpc-cidr-reservations
