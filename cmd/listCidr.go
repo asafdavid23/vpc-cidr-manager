@@ -71,5 +71,4 @@ func init() {
 	// is called directly, e.g.:
 	// listCidrCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	listCidrCmd.Flags().StringP("output", "o", "table", "Output format (table, json, yaml)")
-	listCidrCmd.Flags().StringP("log-level", "l", "info", "Log level (debug, info, warn, error, fatal)")
 }
