@@ -46,7 +46,7 @@ var importCidrCmd = &cobra.Command{
 		}
 
 		logger.Debug("Initializing DynamoDB client")
-		hubDynamoClient, err := internalAws.GetDynamoDBClient(ctx, cfg)
+		hubDynamoClient, err := internalAws.GetDynamoDBClient(cfg)
 
 		logger.Debug("Initializing STS client")
 
@@ -112,7 +112,8 @@ var importCidrCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(importCidrCmd)
+	// rootCmd.AddCommand(importCidrCmd)
+	dynamodbCmd.AddCommand(importCidrCmd)
 
 	// Here you will define your flags and configuration settings.
 

@@ -8,7 +8,7 @@ import (
 )
 
 // iamCmd represents the iam command
-var cfCmd = &cobra.Command{
+var cfnCmd = &cobra.Command{
 	Use:   "cloudformation",
 	Short: "Manage Supported Infrastructure as Code with CloudFormation",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -16,9 +16,7 @@ var cfCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(cfCmd)
-	cfCmd.AddCommand(createAssumedRoleCmd)
-	cfCmd.AddCommand(createTableCmd)
+	rootCmd.AddCommand(cfnCmd)
 
 	// Here you will define your flags and configuration settings.
 

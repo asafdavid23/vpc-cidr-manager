@@ -42,7 +42,7 @@ var listCidrCmd = &cobra.Command{
 		}
 
 		logger.Debug("Initializing DynamoDB client")
-		client, err := internalAws.GetDynamoDBClient(ctx, cfg)
+		client, err := internalAws.GetDynamoDBClient(cfg)
 
 		if err != nil {
 			logger.Fatal(err)
@@ -58,7 +58,8 @@ var listCidrCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(listCidrCmd)
+	// rootCmd.AddCommand(listCidrCmd)
+	dynamodbCmd.AddCommand(listCidrCmd)
 
 	// Here you will define your flags and configuration settings.
 

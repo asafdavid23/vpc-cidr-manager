@@ -77,7 +77,7 @@ func CheckItemExists(ctx context.Context, client *dynamodb.Client, cidr string) 
 	return true, nil
 }
 
-func GetDynamoDBClient(ctx context.Context, cfg aws.Config) (*dynamodb.Client, error) {
+func GetDynamoDBClient(cfg aws.Config) (*dynamodb.Client, error) {
 	client := dynamodb.NewFromConfig(cfg)
 
 	if client == nil {

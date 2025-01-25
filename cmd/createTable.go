@@ -35,7 +35,7 @@ var createTableCmd = &cobra.Command{
 		}
 
 		logger.Debug("Initializing DynamoDB client")
-		client, err := internalAws.GetDynamoDBClient(ctx, cfg)
+		client, err := internalAws.GetDynamoDBClient(cfg)
 		if err != nil {
 			logger.Fatal(err)
 		}
@@ -52,7 +52,8 @@ var createTableCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(createTableCmd)
+	// rootCmd.AddCommand(createTableCmd)
+	cfnCmd.AddCommand(createTableCmd)
 
 	// Here you will define your flags and configuration settings.
 

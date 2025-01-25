@@ -4,8 +4,14 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"context"
+	"os"
+
+	"github.com/asafdavid23/vpc-cidr-manager/internal/aws"
 	internalAws "github.com/asafdavid23/vpc-cidr-manager/internal/aws"
+	"github.com/asafdavid23/vpc-cidr-manager/internal/helpers"
 	"github.com/asafdavid23/vpc-cidr-manager/internal/logging"
+	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/spf13/cobra"
 )
 
@@ -16,31 +22,67 @@ var createAssumedRoleCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		logLevel, err := cmd.Flags().GetString("log-level")
 		roleName, err := cmd.Flags().GetString("role-name")
-		policyFile, err := cmd.Flags().GetString("policy-file")
-		trustFile, err := cmd.Flags().GetString("trust-file")
-
 		logger := logging.NewLogger(logLevel)
+		hubAccount, err := cmd.Flags().GetString("hub-account")
+		assumeRolePrincipal := "arn:aws:iam::" + hubAccount + ":root"
+		ctx := context.TODO()
+		stackName := "vpc-cidr-manager-assumed-role"
 
-		logger.Debug("Initializing IAM client")
-		client, err := internalAws.GetIAMClient()
+		region := os.Getenv("AWS_REGION")
+
+		if region == "" {
+			logger.Fatal("AWS_REGION environment variable is not set")
+		}
+
+		cfg, err := config.LoadDefaultConfig(ctx, config.WithRegion(region))
 
 		if err != nil {
 			logger.Fatal(err)
 		}
 
-		logger.Debug("Creating assumed role")
-		err = internalAws.CreateAssumableRole(client, roleName, policyFile, trustFile)
+		iamTemplateFile := "templates/cloudformation/iam_role.yml"
+
+		data := helpers.IAMTemplateData{
+			RoleName:  roleName,
+			Principal: assumeRolePrincipal,
+		}
+
+		renderedTemplate, err := helpers.LoadAndRenderTemplate(iamTemplateFile, data)
 
 		if err != nil {
 			logger.Fatal(err)
 		}
 
-		logger.Infof("Assumed role %s created successfully", roleName)
+		logger.Debugf("Rendered template: %s", renderedTemplate)
+
+		logger.Debug("Iinitializing CloudFormation client")
+		cfnClient, err := aws.InitializeCFNClient(cfg)
+
+		if err != nil {
+			logger.Fatal(err)
+		}
+
+		logger.Debug("Creating CloudFormation stack")
+
+		output, err := internalAws.CreateCFNStack(ctx, cfnClient, stackName, renderedTemplate)
+
+		if err != nil {
+			logger.Fatal(err)
+		}
+
+		err = internalAws.WaitForStackToBeCreated(ctx, cfnClient, stackName)
+
+		if err != nil {
+			logger.Fatal(err)
+		}
+
+		logger.Infof("Stack %s created successfully", *output.StackId)
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(createAssumedRoleCmd)
+	// rootCmd.AddCommand(createAssumedRoleCmd)
+	cfnCmd.AddCommand(createAssumedRoleCmd)
 
 	// Here you will define your flags and configuration settings.
 
@@ -54,9 +96,5 @@ func init() {
 	createAssumedRoleCmd.Flags().StringP("log-level", "l", "info", "The log level to use")
 	createAssumedRoleCmd.Flags().StringP("role-name", "r", "", "The name of the role to create")
 	createAssumedRoleCmd.MarkFlagRequired("role-name")
-	createAssumedRoleCmd.Flags().StringP("policy-file", "p", "", "The file containing the policy document")
-	createAssumedRoleCmd.MarkFlagRequired("policy-file")
-	createAssumedRoleCmd.Flags().StringP("trust-file", "t", "", "The file containing the trust relationship policy")
-	createAssumedRoleCmd.MarkFlagRequired("trust-file")
-
+	createAssumedRoleCmd.Flags().String("hub-account", "", "The principal that assume the role in spoke accoount")
 }

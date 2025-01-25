@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: IAM Role for VPC CIDR Manager
+
+Resources:
+  IAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: "{{.RoleName}}"
+      Path: /earnix/
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: "{{.Principal}}"
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: VPC-CIDR-Manager-Policy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                - ec2:DescribeVpcs
+                Resource: "*"
+
+
+Outputs:
+  RoleArn:
+    Value:
+      Fn::GetAtt:
+        - IAMRole
+        - Arn
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-RoleArn"
