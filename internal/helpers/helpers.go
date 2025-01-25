@@ -1,13 +1,24 @@
 package helpers
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net"
+	"os"
+	"text/template"
+
+	"gopkg.in/yaml.v2"
 )
 
 type CIDRReservation struct {
 	CIDR string `json:"cidr"`
+}
+
+type IAMTemplateData struct {
+	RoleName  string
+	Principal string
 }
 
 func GenerateCIDR(existingCIDRs []string, baseCIDR string, prefixSize int) (string, error) {
@@ -75,4 +86,53 @@ func isOverlapping(cidr *net.IPNet, existingCIDRs []string) bool {
 		}
 	}
 	return false
+}
+
+// LoadAndRenderTemplate loads a CloudFormation template from a file, processes it with dynamic values, and returns the rendered template
+func LoadAndRenderTemplate(templateFilePath string, data IAMTemplateData) (string, error) {
+	// Read the template file
+	cfnTemplate, err := os.ReadFile(templateFilePath)
+	if err != nil {
+		return "", fmt.Errorf("failed to read template file: %v", err)
+	}
+
+	// Parse the template
+	tmpl, err := template.New("cfnTemplate").Parse(string(cfnTemplate))
+	if err != nil {
+		return "", fmt.Errorf("failed to parse template: %v", err)
+	}
+
+	// Apply the data to the template
+	var renderedTemplate bytes.Buffer
+	err = tmpl.Execute(&renderedTemplate, data)
+	if err != nil {
+		return "", fmt.Errorf("failed to execute template: %v", err)
+	}
+
+	return renderedTemplate.String(), nil
+}
+
+// LoadFileContent loads the content of a file as a string
+// If the content is in JSON format, it converts it to YAML with proper indentation
+func LoadFileContent(filePath string) (string, error) {
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return "", fmt.Errorf("failed to read file %s: %v", filePath, err)
+	}
+
+	// Attempt to parse as JSON
+	var jsonData map[string]interface{}
+	if json.Unmarshal(content, &jsonData) == nil {
+		// Convert JSON to YAML with indentation
+		yamlData, err := yaml.Marshal(jsonData)
+		if err != nil {
+			return "", fmt.Errorf("failed to convert JSON to YAML: %v", err)
+		}
+
+		// Return the YAML string with proper indentation
+		return string(yamlData), nil
+	}
+
+	// Return as is if not JSON
+	return string(content), nil
 }

@@ -4,7 +4,9 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	internalAws "github.com/asafdavid23/vpc-cidr-manager/internal/aws"
+	"fmt"
+
+	"github.com/asafdavid23/vpc-cidr-manager/internal/helpers"
 	"github.com/asafdavid23/vpc-cidr-manager/internal/logging"
 	"github.com/spf13/cobra"
 )
@@ -16,26 +18,40 @@ var createAssumedRoleCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		logLevel, err := cmd.Flags().GetString("log-level")
 		roleName, err := cmd.Flags().GetString("role-name")
-		policyFile, err := cmd.Flags().GetString("policy-file")
-		trustFile, err := cmd.Flags().GetString("trust-file")
-
 		logger := logging.NewLogger(logLevel)
+		assumeRolePrincipal, err := cmd.Flags().GetString("assume-role-principal")
 
-		logger.Debug("Initializing IAM client")
-		client, err := internalAws.GetIAMClient()
+		iamTemplateFile := "templates/cloudformation/iam_role.yml"
+
+		data := helpers.IAMTemplateData{
+			RoleName:  roleName,
+			Principal: assumeRolePrincipal,
+		}
+
+		renderedTemplate, err := helpers.LoadAndRenderTemplate(iamTemplateFile, data)
 
 		if err != nil {
 			logger.Fatal(err)
 		}
 
-		logger.Debug("Creating assumed role")
-		err = internalAws.CreateAssumableRole(client, roleName, policyFile, trustFile)
+		// Print the rendered CloudFormation template
+		fmt.Println("Rendered CloudFormation Template:")
 
-		if err != nil {
-			logger.Fatal(err)
-		}
+		// logger.Debug("Initializing IAM client")
+		// client, err := internalAws.GetIAMClient()
 
-		logger.Infof("Assumed role %s created successfully", roleName)
+		// if err != nil {
+		// 	logger.Fatal(err)
+		// }
+
+		// logger.Debug("Creating assumed role")
+		// err = internalAws.CreateAssumableRole(client, roleName, policyFile, trustFile)
+
+		// if err != nil {
+		// 	logger.Fatal(err)
+		// }
+
+		// logger.Infof("Assumed role %s created successfully", roleName)
 	},
 }
 
@@ -54,9 +70,6 @@ func init() {
 	createAssumedRoleCmd.Flags().StringP("log-level", "l", "info", "The log level to use")
 	createAssumedRoleCmd.Flags().StringP("role-name", "r", "", "The name of the role to create")
 	createAssumedRoleCmd.MarkFlagRequired("role-name")
-	createAssumedRoleCmd.Flags().StringP("policy-file", "p", "", "The file containing the policy document")
-	createAssumedRoleCmd.MarkFlagRequired("policy-file")
-	createAssumedRoleCmd.Flags().StringP("trust-file", "t", "", "The file containing the trust relationship policy")
-	createAssumedRoleCmd.MarkFlagRequired("trust-file")
+	createAssumedRoleCmd.Flags().String("assume-role-principal", "", "The principal to assume the role")
 
 }
