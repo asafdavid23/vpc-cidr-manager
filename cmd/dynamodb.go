@@ -17,11 +17,6 @@ var dynamodbCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(dynamodbCmd)
-	dynamodbCmd.AddCommand(createTableCmd)
-	dynamodbCmd.AddCommand(importCidrCmd)
-	dynamodbCmd.AddCommand(listCidrCmd)
-	dynamodbCmd.AddCommand(releaseCidrCmd)
-	dynamodbCmd.AddCommand(reserveCidrCmd)
 
 	// Here you will define your flags and configuration settings.
 

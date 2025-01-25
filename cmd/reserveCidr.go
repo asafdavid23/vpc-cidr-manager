@@ -104,7 +104,6 @@ func init() {
 	// is called directly, e.g.:
 	// reserveCidrCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	reserveCidrCmd.Flags().StringP("cidr", "c", "", "The CIDR block to reserve")
-	reserveCidrCmd.Flags().String("log-level", "info", "The log level to use")
 	reserveCidrCmd.Flags().String("vpc-id", "", "The ID of the VPC to associate with the CIDR block")
 	reserveCidrCmd.Flags().String("vpc-name", "", "The name of the VPC to associate with the CIDR block")
 	reserveCidrCmd.Flags().Bool("auto-generate", false, "Automatically generate a CIDR block")

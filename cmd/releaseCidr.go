@@ -68,5 +68,4 @@ func init() {
 	// releaseCidrCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	releaseCidrCmd.Flags().StringSliceVarP(&cidr, "cidr", "c", []string{}, "The CIDR block to release")
 	releaseCidrCmd.MarkFlagRequired("cidr")
-	releaseCidrCmd.Flags().StringP("log-level", "l", "info", "The log level to use")
 }

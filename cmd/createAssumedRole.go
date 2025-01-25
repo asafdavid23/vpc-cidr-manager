@@ -93,7 +93,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// createAssumedRuleCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	createAssumedRoleCmd.Flags().StringP("log-level", "l", "info", "The log level to use")
 	createAssumedRoleCmd.Flags().StringP("role-name", "r", "", "The name of the role to create")
 	createAssumedRoleCmd.MarkFlagRequired("role-name")
 	createAssumedRoleCmd.Flags().String("hub-account", "", "The principal that assume the role in spoke accoount")
