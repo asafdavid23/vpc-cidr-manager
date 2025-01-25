@@ -13,13 +13,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var cidr []string
+
 // releaseCidrCmd represents the releaseCidr command
 var releaseCidrCmd = &cobra.Command{
 	Use:   "release-cidr",
 	Short: "Release a CIDR block",
 	Run: func(cmd *cobra.Command, args []string) {
 		logLevel, err := cmd.Flags().GetString("log-level")
-		cidr, err := cmd.Flags().GetString("cidr")
 		logger := logging.NewLogger(logLevel)
 		ctx := context.TODO()
 		region := os.Getenv("AWS_REGION")
@@ -64,7 +65,7 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// releaseCidrCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	releaseCidrCmd.Flags().StringP("cidr", "c", "", "The CIDR block to release")
+	releaseCidrCmd.Flags().StringSliceVarP(&cidr, "cidr", "c", []string{}, "The CIDR block to release")
 	releaseCidrCmd.MarkFlagRequired("cidr")
 	releaseCidrCmd.Flags().StringP("log-level", "l", "info", "The log level to use")
 }

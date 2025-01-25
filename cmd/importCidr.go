@@ -39,7 +39,7 @@ var importCidrCmd = &cobra.Command{
 		}
 
 		logger.Debug("Initializing EC2 client")
-		hubEC2Client, err := internalAws.GetEc2Client()
+		hubEC2Client, err := internalAws.GetEc2Client(cfg)
 
 		if err != nil {
 			logger.Fatal(err)
@@ -55,7 +55,7 @@ var importCidrCmd = &cobra.Command{
 		}
 
 		// Initialize the STS client
-		hubStsClient, err := internalAws.GetStsClient(ctx, cfg)
+		hubStsClient, err := internalAws.GetStsClient(cfg)
 
 		if err != nil {
 			logger.Fatal(err)
@@ -63,7 +63,7 @@ var importCidrCmd = &cobra.Command{
 
 		if account != "" {
 			logger.Debugf("Assuming role for account %s, role %s", account, assumedRoleArn)
-			assumedRoleCfg, err := internalAws.AssumeRole(ctx, cfg, hubStsClient, assumedRoleArn)
+			assumedRoleCfg, err := internalAws.AssumeRole(cfg, hubStsClient, assumedRoleArn)
 
 			if err != nil {
 				logger.Fatal(err)

@@ -191,7 +191,7 @@ func ReserveCIDR(ctx context.Context, client *dynamodb.Client, cidr string, vpcI
 	}
 
 	// Fetch all reserved CIDRs
-	existingCIDRs, err := fetchExistingCIDRs(client, tableName)
+	existingCIDRs, err := FetchExistingCIDRs(client, tableName)
 
 	if err != nil {
 		return fmt.Errorf("failed to fetch existing CIDRs: %w", err)
@@ -229,7 +229,7 @@ func ReserveCIDR(ctx context.Context, client *dynamodb.Client, cidr string, vpcI
 	return nil
 }
 
-func ReleaseCidr(ctx context.Context, client *dynamodb.Client, cidr string, logger *log.Logger) error {
+func ReleaseCidr(ctx context.Context, client *dynamodb.Client, cidr []string, logger *log.Logger) error {
 	tableName := os.Getenv("DDB_TABLE_NAME")
 
 	if tableName == "" {
@@ -242,20 +242,23 @@ func ReleaseCidr(ctx context.Context, client *dynamodb.Client, cidr string, logg
 		return fmt.Errorf("%w", err)
 	}
 
-	_, err = client.DeleteItem(context.TODO(), &dynamodb.DeleteItemInput{
-		TableName: aws.String(tableName),
-		Key: map[string]types.AttributeValue{
-			"CIDR": &types.AttributeValueMemberS{Value: cidr},
-		},
-	})
-	if err != nil {
-		return fmt.Errorf("failed to delete CIDR: %w", err)
+	for _, c := range cidr {
+		_, err := client.DeleteItem(ctx, &dynamodb.DeleteItemInput{
+			TableName: aws.String(tableName),
+			Key: map[string]types.AttributeValue{
+				"CIDR": &types.AttributeValueMemberS{Value: c},
+			},
+		})
+		if err != nil {
+			return fmt.Errorf("failed to delete CIDR: %w", err)
+		}
 	}
+
 	return nil
 }
 
 // fetchExistingCIDRs retrieves all reserved CIDRs from the DynamoDB table
-func fetchExistingCIDRs(client *dynamodb.Client, tableName string) ([]string, error) {
+func FetchExistingCIDRs(client *dynamodb.Client, tableName string) ([]string, error) {
 	output, err := client.Scan(context.TODO(), &dynamodb.ScanInput{
 		TableName:            aws.String(tableName),
 		ProjectionExpression: aws.String("CIDR"),
