@@ -54,7 +54,8 @@ var releaseCidrCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(releaseCidrCmd)
+	// rootCmd.AddCommand(releaseCidrCmd)
+	dynamodbCmd.AddCommand(releaseCidrCmd)
 
 	// Here you will define your flags and configuration settings.
 

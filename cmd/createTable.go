@@ -52,7 +52,8 @@ var createTableCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(createTableCmd)
+	// rootCmd.AddCommand(createTableCmd)
+	cfCmd.AddCommand(createTableCmd)
 
 	// Here you will define your flags and configuration settings.
 

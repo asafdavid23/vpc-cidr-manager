@@ -91,7 +91,8 @@ var reserveCidrCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(reserveCidrCmd)
+	// rootCmd.AddCommand(reserveCidrCmd)
+	dynamodbCmd.AddCommand(reserveCidrCmd)
 
 	// Here you will define your flags and configuration settings.
 

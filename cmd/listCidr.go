@@ -58,7 +58,8 @@ var listCidrCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(listCidrCmd)
+	// rootCmd.AddCommand(listCidrCmd)
+	dynamodbCmd.AddCommand(listCidrCmd)
 
 	// Here you will define your flags and configuration settings.
 

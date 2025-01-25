@@ -81,7 +81,8 @@ var createAssumedRoleCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(createAssumedRoleCmd)
+	// rootCmd.AddCommand(createAssumedRoleCmd)
+	cfCmd.AddCommand(createAssumedRoleCmd)
 
 	// Here you will define your flags and configuration settings.
 

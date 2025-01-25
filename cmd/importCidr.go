@@ -112,7 +112,8 @@ var importCidrCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(importCidrCmd)
+	// rootCmd.AddCommand(importCidrCmd)
+	dynamodbCmd.AddCommand(importCidrCmd)
 
 	// Here you will define your flags and configuration settings.
 
