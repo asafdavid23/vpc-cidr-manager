@@ -55,7 +55,7 @@ var importCidrCmd = &cobra.Command{
 		}
 
 		// Initialize the STS client
-		hubStsClient, err := internalAws.GetStsClient()
+		hubStsClient, err := internalAws.GetStsClient(ctx, cfg)
 
 		if err != nil {
 			logger.Fatal(err)
