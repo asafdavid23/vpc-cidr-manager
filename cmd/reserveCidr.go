@@ -4,8 +4,12 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"context"
+	"os"
+
 	internalAws "github.com/asafdavid23/vpc-cidr-manager/internal/aws"
 	"github.com/asafdavid23/vpc-cidr-manager/internal/logging"
+	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/spf13/cobra"
 )
 
@@ -18,18 +22,29 @@ var reserveCidrCmd = &cobra.Command{
 		cidr, err := cmd.Flags().GetString("cidr")
 		vpcID, err := cmd.Flags().GetString("vpc-id")
 		vpcName, err := cmd.Flags().GetString("vpc-name")
-
+		ctx := context.TODO()
 		logger := logging.NewLogger(logLevel)
+		region := os.Getenv("AWS_REGION")
+
+		if region == "" {
+			logger.Fatal("AWS_REGION environment variable is not set")
+		}
+
+		cfg, err := config.LoadDefaultConfig(ctx, config.WithRegion(region))
+
+		if err != nil {
+			logger.Fatal(err)
+		}
 
 		logger.Debug("Initializing DynamoDB client")
-		client, err := internalAws.GetDynamoDBClient()
+		client, err := internalAws.GetDynamoDBClient(ctx, cfg)
 
 		if err != nil {
 			logger.Fatal(err)
 		}
 
 		logger.Debug("Reserving CIDR")
-		err = internalAws.ReserveCIDR(client, cidr, vpcID, vpcName, logger)
+		err = internalAws.ReserveCIDR(ctx, client, cidr, vpcID, vpcName, logger)
 
 		if err != nil {
 			logger.Fatal(err)

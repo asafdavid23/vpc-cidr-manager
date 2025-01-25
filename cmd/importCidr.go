@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"context"
+	"os"
 
 	internalAws "github.com/asafdavid23/vpc-cidr-manager/internal/aws"
 	"github.com/asafdavid23/vpc-cidr-manager/internal/logging"
@@ -25,8 +26,13 @@ var importCidrCmd = &cobra.Command{
 		logger := logging.NewLogger(logLevel)
 		ctx := context.TODO()
 		assumedRoleArn := "arn:aws:iam::" + account + ":role/" + roleName
+		region := os.Getenv("AWS_REGION")
 
-		cfg, err := config.LoadDefaultConfig(ctx)
+		if region == "" {
+			logger.Fatal("AWS_REGION environment variable is not set")
+		}
+
+		cfg, err := config.LoadDefaultConfig(ctx, config.WithRegion(region))
 
 		if err != nil {
 			logger.Fatal(err)
@@ -40,7 +46,7 @@ var importCidrCmd = &cobra.Command{
 		}
 
 		logger.Debug("Initializing DynamoDB client")
-		hubDynamoClient, err := internalAws.GetDynamoDBClient()
+		hubDynamoClient, err := internalAws.GetDynamoDBClient(ctx, cfg)
 
 		logger.Debug("Initializing STS client")
 
@@ -78,7 +84,7 @@ var importCidrCmd = &cobra.Command{
 			logger.Debugf("vpcInfo %v", vpcInfo)
 
 			logger.Debugf("Importing CIDR blocks for vpc %s", vpcId)
-			err = internalAws.PushToDynamoDB(hubDynamoClient, vpcInfo)
+			err = internalAws.PushToDynamoDB(ctx, hubDynamoClient, vpcInfo)
 
 			if err != nil {
 				logger.Fatal(err)
@@ -95,7 +101,7 @@ var importCidrCmd = &cobra.Command{
 		}
 
 		logger.Debug("Importing CIDR blocks")
-		err = internalAws.PushToDynamoDB(hubDynamoClient, vpcInfo)
+		err = internalAws.PushToDynamoDB(ctx, hubDynamoClient, vpcInfo)
 
 		if err != nil {
 			logger.Fatal(err)

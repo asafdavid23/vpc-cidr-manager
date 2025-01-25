@@ -4,7 +4,12 @@ go 1.23.4
 
 require github.com/sirupsen/logrus v1.9.3
 
-require github.com/aws/aws-sdk-go-v2/service/dynamodbstreams v1.24.15 // indirect
+require (
+	github.com/aws/aws-sdk-go-v2/service/dynamodbstreams v1.24.15 // indirect
+	github.com/mattn/go-runewidth v0.0.9 // indirect
+	sigs.k8s.io/json v0.0.0-20241010143419-9aa6b5e7a4b3 // indirect
+	sigs.k8s.io/yaml v1.4.0 // indirect
+)
 
 require (
 	github.com/aws/aws-sdk-go v1.55.6
@@ -28,9 +33,12 @@ require (
 	github.com/aws/smithy-go v1.22.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
+	github.com/olekukonko/tablewriter v0.0.5
 	github.com/spf13/cobra v1.8.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
-	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
+	golang.org/x/sys v0.26.0 // indirect
+	gopkg.in/yaml.v2 v2.4.0
+	k8s.io/apimachinery v0.32.1
 )

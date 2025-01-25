@@ -4,8 +4,12 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"context"
+	"os"
+
 	internalAws "github.com/asafdavid23/vpc-cidr-manager/internal/aws"
 	"github.com/asafdavid23/vpc-cidr-manager/internal/logging"
+	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/spf13/cobra"
 )
 
@@ -16,18 +20,29 @@ var releaseCidrCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		logLevel, err := cmd.Flags().GetString("log-level")
 		cidr, err := cmd.Flags().GetString("cidr")
-
 		logger := logging.NewLogger(logLevel)
+		ctx := context.TODO()
+		region := os.Getenv("AWS_REGION")
+
+		if region == "" {
+			logger.Fatal("AWS_REGION environment variable is not set")
+		}
+
+		cfg, err := config.LoadDefaultConfig(ctx, config.WithRegion(region))
+
+		if err != nil {
+			logger.Fatal(err)
+		}
 
 		logger.Debug("Initializing DynamoDB client")
-		client, err := internalAws.GetDynamoDBClient()
+		client, err := internalAws.GetDynamoDBClient(ctx, cfg)
 
 		if err != nil {
 			logger.Fatal(err)
 		}
 
 		logger.Debug("Releasing CIDR block")
-		err = internalAws.ReleaseCidr(client, cidr, logger)
+		err = internalAws.ReleaseCidr(ctx, client, cidr, logger)
 
 		if err != nil {
 			logger.Fatal(err)
