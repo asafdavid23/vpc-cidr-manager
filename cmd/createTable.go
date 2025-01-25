@@ -35,7 +35,7 @@ var createTableCmd = &cobra.Command{
 		}
 
 		logger.Debug("Initializing DynamoDB client")
-		client, err := internalAws.GetDynamoDBClient(ctx, cfg)
+		client, err := internalAws.GetDynamoDBClient(cfg)
 		if err != nil {
 			logger.Fatal(err)
 		}

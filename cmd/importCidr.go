@@ -46,7 +46,7 @@ var importCidrCmd = &cobra.Command{
 		}
 
 		logger.Debug("Initializing DynamoDB client")
-		hubDynamoClient, err := internalAws.GetDynamoDBClient(ctx, cfg)
+		hubDynamoClient, err := internalAws.GetDynamoDBClient(cfg)
 
 		logger.Debug("Initializing STS client")
 
