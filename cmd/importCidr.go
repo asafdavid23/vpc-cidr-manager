@@ -5,13 +5,13 @@ package cmd
 
 import (
 	"context"
-	"os"
 
 	internalAws "github.com/asafdavid23/vpc-cidr-manager/internal/aws"
 	"github.com/asafdavid23/vpc-cidr-manager/internal/logging"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // importCidrCmd represents the importCidr command
@@ -26,7 +26,7 @@ var importCidrCmd = &cobra.Command{
 		logger := logging.NewLogger(logLevel)
 		ctx := context.TODO()
 		assumedRoleArn := "arn:aws:iam::" + account + ":role/" + roleName
-		region := os.Getenv("AWS_REGION")
+		region := viper.GetString("global.region")
 
 		if region == "" {
 			logger.Fatal("AWS_REGION environment variable is not set")
@@ -125,7 +125,6 @@ func init() {
 	// is called directly, e.g.:
 	// importCidrCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	importCidrCmd.Flags().StringP("vpc-id", "v", "", "The VPC ID to import CIDR blocks from")
-	importCidrCmd.MarkFlagRequired("vpc-id")
 	importCidrCmd.Flags().StringP("account-id", "a", "", "The AWS account ID to import CIDR blocks from")
 	importCidrCmd.Flags().String("assume-role", "", "The role name to assume")
 }
