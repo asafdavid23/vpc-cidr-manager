@@ -15,8 +15,8 @@ import (
 )
 
 // createTableCmd represents the createTable command
-var createTableCmd = &cobra.Command{
-	Use:   "create-table",
+var createDynamoDBTableCmd = &cobra.Command{
+	Use:   "dynamodb-table",
 	Short: "Create the VpcCidrReservations table in DynamoDB",
 	Run: func(cmd *cobra.Command, args []string) {
 		logLevel, err := cmd.Flags().GetString("log-level")
@@ -24,6 +24,8 @@ var createTableCmd = &cobra.Command{
 		logger := logging.NewLogger(logLevel)
 		ctx := context.TODO()
 		stackName := "vpc-cidr-manager-dynamodb-table"
+		dryRun, err := cmd.Flags().GetBool("dry-run")
+		// generateTemplate, err := cmd.Flags().GetBool("generate-iaac-template")
 		region := viper.GetString("global.region")
 
 		if region == "" {
@@ -57,27 +59,37 @@ var createTableCmd = &cobra.Command{
 			logger.Fatal(err)
 		}
 
-		logger.Debug("Creating cloudformation stack")
+		if dryRun {
+			logger.Infof("Dry run enabled, not creating stack %s", stackName)
+			err := internalAws.ValidateCFNStackTemplate(ctx, cfnClient, renderedTemplate)
 
-		output, err := internalAws.CreateCFNStack(ctx, cfnClient, stackName, renderedTemplate)
+			if err != nil {
+				logger.Fatal(err)
+			}
 
-		if err != nil {
-			logger.Fatal(err)
+		} else {
+			logger.Debug("Creating cloudformation stack")
+
+			output, err := internalAws.CreateCFNStack(ctx, cfnClient, stackName, renderedTemplate)
+
+			if err != nil {
+				logger.Fatal(err)
+			}
+
+			err = internalAws.WaitForStackToBeCreated(ctx, cfnClient, stackName)
+
+			if err != nil {
+				logger.Fatal(err)
+			}
+
+			logger.Infof("Stack %s created successfully", *output.StackId)
 		}
-
-		err = internalAws.WaitForStackToBeCreated(ctx, cfnClient, stackName)
-
-		if err != nil {
-			logger.Fatal(err)
-		}
-
-		logger.Infof("Stack %s created successfully", *output.StackId)
 	},
 }
 
 func init() {
 	// rootCmd.AddCommand(createTableCmd)
-	cfnCmd.AddCommand(createTableCmd)
+	createCmd.AddCommand(createDynamoDBTableCmd)
 
 	// Here you will define your flags and configuration settings.
 
@@ -88,7 +100,9 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// createTableCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	createTableCmd.Flags().StringP("name", "n", "", "The name of the table to create")
+	createDynamoDBTableCmd.Flags().StringP("name", "n", "", "The name of the table to create")
+	createDynamoDBTableCmd.Flags().Bool("dry-run", false, "Print the rendered CloudFormation template without creating the stack")
+	createDynamoDBTableCmd.Flags().Bool("generate-iaac-template", false, "Generate the CloudFormation template without creating the stack")
 
-	viper.BindPFlag("dynamodb.tableName", createTableCmd.Flags().Lookup("name"))
+	viper.BindPFlag("dynamodb.tableName", createDynamoDBTableCmd.Flags().Lookup("name"))
 }

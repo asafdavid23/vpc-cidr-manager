@@ -17,7 +17,7 @@ import (
 
 // createAssumedRoleCmd represents the createAssumedRule command
 var createAssumedRoleCmd = &cobra.Command{
-	Use:   "create-assumed-role",
+	Use:   "assumed-role",
 	Short: "Create an assumed role for the VPC CIDR Manager",
 	Run: func(cmd *cobra.Command, args []string) {
 		logLevel, err := cmd.Flags().GetString("log-level")
@@ -82,7 +82,7 @@ var createAssumedRoleCmd = &cobra.Command{
 
 func init() {
 	// rootCmd.AddCommand(createAssumedRoleCmd)
-	cfnCmd.AddCommand(createAssumedRoleCmd)
+	createCmd.AddCommand(createAssumedRoleCmd)
 
 	// Here you will define your flags and configuration settings.
 
