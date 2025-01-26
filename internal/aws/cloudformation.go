@@ -50,3 +50,15 @@ func WaitForStackToBeCreated(ctx context.Context, cfnClient *cloudformation.Clie
 
 	return nil
 }
+
+func ValidateCFNStackTemplate(ctx context.Context, client *cloudformation.Client, templateBody string) error {
+	_, err := client.ValidateTemplate(ctx, &cloudformation.ValidateTemplateInput{
+		TemplateBody: aws.String(templateBody),
+	})
+
+	if err != nil {
+		return fmt.Errorf("failed to validate template: %v", err)
+	}
+
+	return nil
+}
