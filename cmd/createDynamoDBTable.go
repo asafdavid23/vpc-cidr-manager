@@ -15,8 +15,8 @@ import (
 )
 
 // createTableCmd represents the createTable command
-var createTableCmd = &cobra.Command{
-	Use:   "create-table",
+var createDynamoDBTableCmd = &cobra.Command{
+	Use:   "dynamodb-table",
 	Short: "Create the VpcCidrReservations table in DynamoDB",
 	Run: func(cmd *cobra.Command, args []string) {
 		logLevel, err := cmd.Flags().GetString("log-level")
@@ -77,7 +77,8 @@ var createTableCmd = &cobra.Command{
 
 func init() {
 	// rootCmd.AddCommand(createTableCmd)
-	cfnCmd.AddCommand(createTableCmd)
+	createCmd.AddCommand(createDynamoDBTableCmd)
+	generateTemplateCmd.AddCommand(createDynamoDBTableCmd)
 
 	// Here you will define your flags and configuration settings.
 
@@ -88,7 +89,7 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// createTableCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	createTableCmd.Flags().StringP("name", "n", "", "The name of the table to create")
+	createDynamoDBTableCmd.Flags().StringP("name", "n", "", "The name of the table to create")
 
-	viper.BindPFlag("dynamodb.tableName", createTableCmd.Flags().Lookup("name"))
+	viper.BindPFlag("dynamodb.tableName", createDynamoDBTableCmd.Flags().Lookup("name"))
 }

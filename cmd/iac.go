@@ -8,15 +8,15 @@ import (
 )
 
 // iamCmd represents the iam command
-var cfnCmd = &cobra.Command{
-	Use:   "cloudformation",
-	Short: "Manage Supported Infrastructure as Code with CloudFormation",
+var iaacCmd = &cobra.Command{
+	Use:   "iaac",
+	Short: "Infrastructure as a code commands for VPC CIDR Manager",
 	Run: func(cmd *cobra.Command, args []string) {
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(cfnCmd)
+	rootCmd.AddCommand(iaacCmd)
 
 	// Here you will define your flags and configuration settings.
 
