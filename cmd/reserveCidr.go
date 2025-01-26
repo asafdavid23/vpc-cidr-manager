@@ -5,13 +5,13 @@ package cmd
 
 import (
 	"context"
-	"os"
 
 	internalAws "github.com/asafdavid23/vpc-cidr-manager/internal/aws"
 	"github.com/asafdavid23/vpc-cidr-manager/internal/helpers"
 	"github.com/asafdavid23/vpc-cidr-manager/internal/logging"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // reserveCidrCmd represents the reserveCidr command
@@ -26,14 +26,13 @@ var reserveCidrCmd = &cobra.Command{
 		ctx := context.TODO()
 		logger := logging.NewLogger(logLevel)
 		autoGenerate, err := cmd.Flags().GetBool("auto-generate")
-
-		tableName := os.Getenv("DDB_TABLE_NAME")
+		tableName := viper.GetString("dynamodb.tableName")
 
 		if tableName == "" {
 			logger.Fatal("DDB_TABLE_NAME environment variable is not set")
 		}
 
-		region := os.Getenv("AWS_REGION")
+		region := viper.GetString("global.region")
 
 		if region == "" {
 			logger.Fatal("AWS_REGION environment variable is not set")
@@ -104,6 +103,7 @@ func init() {
 	// is called directly, e.g.:
 	// reserveCidrCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	reserveCidrCmd.Flags().StringP("cidr", "c", "", "The CIDR block to reserve")
+	reserveCidrCmd.MarkFlagRequired("cidr")
 	reserveCidrCmd.Flags().String("vpc-id", "", "The ID of the VPC to associate with the CIDR block")
 	reserveCidrCmd.Flags().String("vpc-name", "", "The name of the VPC to associate with the CIDR block")
 	reserveCidrCmd.Flags().Bool("auto-generate", false, "Automatically generate a CIDR block")

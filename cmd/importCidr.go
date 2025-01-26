@@ -134,7 +134,6 @@ func init() {
 	// is called directly, e.g.:
 	// importCidrCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	importCidrCmd.Flags().StringP("vpc-id", "v", "", "The VPC ID to import CIDR blocks from")
-	importCidrCmd.MarkFlagRequired("vpc-id")
 	importCidrCmd.Flags().StringP("account-id", "a", "", "The AWS account ID to import CIDR blocks from")
 	importCidrCmd.Flags().String("assume-role", "", "The role name to assume")
 }

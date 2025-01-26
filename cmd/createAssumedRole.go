@@ -5,7 +5,6 @@ package cmd
 
 import (
 	"context"
-	"os"
 
 	"github.com/asafdavid23/vpc-cidr-manager/internal/aws"
 	internalAws "github.com/asafdavid23/vpc-cidr-manager/internal/aws"
@@ -13,6 +12,7 @@ import (
 	"github.com/asafdavid23/vpc-cidr-manager/internal/logging"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // createAssumedRoleCmd represents the createAssumedRule command
@@ -28,7 +28,7 @@ var createAssumedRoleCmd = &cobra.Command{
 		ctx := context.TODO()
 		stackName := "vpc-cidr-manager-assumed-role"
 
-		region := os.Getenv("AWS_REGION")
+		region := viper.GetString("global.region")
 
 		if region == "" {
 			logger.Fatal("region is not set")
@@ -94,6 +94,8 @@ func init() {
 	// is called directly, e.g.:
 	// createAssumedRuleCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	createAssumedRoleCmd.Flags().StringP("role-name", "r", "", "The name of the role to create")
-	createAssumedRoleCmd.MarkFlagRequired("role-name")
 	createAssumedRoleCmd.Flags().String("hub-account", "", "The principal that assume the role in spoke accoount")
+
+	viper.BindPFlag("iam.hubAccountId", createAssumedRoleCmd.Flags().Lookup("hub-account"))
+	viper.BindPFlag("iam.assumedRoleName", createAssumedRoleCmd.Flags().Lookup("role-name"))
 }
