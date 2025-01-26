@@ -23,13 +23,22 @@ var importCidrCmd = &cobra.Command{
 		vpcId, err := cmd.Flags().GetString("vpc-id")
 		account, err := cmd.Flags().GetString("account-id")
 		roleName, err := cmd.Flags().GetString("assume-role")
+		tableName := viper.GetString("dynamodb.tableName")
 		logger := logging.NewLogger(logLevel)
 		ctx := context.TODO()
-		assumedRoleArn := "arn:aws:iam::" + account + ":role/" + roleName
+		assumedRoleArn := "arn:aws:iam::" + account + ":role/earnix/" + roleName
 		region := viper.GetString("global.region")
 
 		if region == "" {
 			logger.Fatal("AWS_REGION environment variable is not set")
+		}
+
+		if tableName == "" {
+			logger.Fatal("tableName is not set")
+		}
+
+		if vpcId == "" {
+			logger.Fatal("vpcId is not set")
 		}
 
 		cfg, err := config.LoadDefaultConfig(ctx, config.WithRegion(region))
@@ -84,7 +93,7 @@ var importCidrCmd = &cobra.Command{
 			logger.Debugf("vpcInfo %v", vpcInfo)
 
 			logger.Debugf("Importing CIDR blocks for vpc %s", vpcId)
-			err = internalAws.PushToDynamoDB(ctx, hubDynamoClient, vpcInfo)
+			err = internalAws.PushToDynamoDB(ctx, hubDynamoClient, vpcInfo, tableName)
 
 			if err != nil {
 				logger.Fatal(err)
@@ -101,7 +110,7 @@ var importCidrCmd = &cobra.Command{
 		}
 
 		logger.Debug("Importing CIDR blocks")
-		err = internalAws.PushToDynamoDB(ctx, hubDynamoClient, vpcInfo)
+		err = internalAws.PushToDynamoDB(ctx, hubDynamoClient, vpcInfo, tableName)
 
 		if err != nil {
 			logger.Fatal(err)

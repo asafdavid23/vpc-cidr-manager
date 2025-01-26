@@ -21,6 +21,10 @@ type IAMTemplateData struct {
 	Principal string
 }
 
+type DynamoDBTableTemplateData struct {
+	TableName string
+}
+
 func GenerateCIDR(existingCIDRs []string, baseCIDR string, prefixSize int) (string, error) {
 	_, network, err := net.ParseCIDR(baseCIDR)
 
@@ -89,7 +93,31 @@ func isOverlapping(cidr *net.IPNet, existingCIDRs []string) bool {
 }
 
 // LoadAndRenderTemplate loads a CloudFormation template from a file, processes it with dynamic values, and returns the rendered template
-func LoadAndRenderTemplate(templateFilePath string, data IAMTemplateData) (string, error) {
+func LoadAndRenderIAMTemplate(templateFilePath string, data IAMTemplateData) (string, error) {
+	// Read the template file
+	cfnTemplate, err := os.ReadFile(templateFilePath)
+	if err != nil {
+		return "", fmt.Errorf("failed to read template file: %v", err)
+	}
+
+	// Parse the template
+	tmpl, err := template.New("cfnTemplate").Parse(string(cfnTemplate))
+	if err != nil {
+		return "", fmt.Errorf("failed to parse template: %v", err)
+	}
+
+	// Apply the data to the template
+	var renderedTemplate bytes.Buffer
+	err = tmpl.Execute(&renderedTemplate, data)
+	if err != nil {
+		return "", fmt.Errorf("failed to execute template: %v", err)
+	}
+
+	return renderedTemplate.String(), nil
+}
+
+// LoadAndRenderTemplate loads a CloudFormation template from a file, processes it with dynamic values, and returns the rendered template
+func LoadAndRenderCFNTemplate(templateFilePath string, data DynamoDBTableTemplateData) (string, error) {
 	// Read the template file
 	cfnTemplate, err := os.ReadFile(templateFilePath)
 	if err != nil {

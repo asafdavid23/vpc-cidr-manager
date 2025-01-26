@@ -1,0 +1,18 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: ---
+  DynamoDB table for storing VPC CIDR blocks
+
+Resources:
+  VpcCidrTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: "{{.TableName}}"
+      AttributeDefinitions:
+        - AttributeName: CIDR
+          AttributeType: S
+      KeySchema:
+        - AttributeName: CIDR
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1

@@ -20,9 +20,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func PushToDynamoDB(ctx context.Context, client *dynamodb.Client, vpcInfo VPCInfo) error {
+func PushToDynamoDB(ctx context.Context, client *dynamodb.Client, vpcInfo VPCInfo, tableName string) error {
 
-	itemExists, err := CheckItemExists(ctx, client, vpcInfo.CIDR)
+	itemExists, err := CheckItemExists(ctx, client, vpcInfo.CIDR, tableName)
 
 	if err != nil {
 		return fmt.Errorf("Got error checking if item exists: %v", err)
@@ -39,8 +39,6 @@ func PushToDynamoDB(ctx context.Context, client *dynamodb.Client, vpcInfo VPCInf
 		return fmt.Errorf("Got error marshalling map: %v", err)
 	}
 
-	tableName := os.Getenv("DDB_TABLE_NAME")
-
 	_, err = client.PutItem(context.TODO(), &dynamodb.PutItemInput{
 		TableName: aws.String(tableName),
 		Item:      av,
@@ -53,9 +51,7 @@ func PushToDynamoDB(ctx context.Context, client *dynamodb.Client, vpcInfo VPCInf
 	return nil
 }
 
-func CheckItemExists(ctx context.Context, client *dynamodb.Client, cidr string) (bool, error) {
-	tableName := os.Getenv("DDB_TABLE_NAME")
-
+func CheckItemExists(ctx context.Context, client *dynamodb.Client, cidr string, tableName string) (bool, error) {
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String(tableName),
 		Key: map[string]types.AttributeValue{

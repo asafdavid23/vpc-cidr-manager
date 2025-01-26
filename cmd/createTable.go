@@ -7,6 +7,7 @@ import (
 	"context"
 
 	internalAws "github.com/asafdavid23/vpc-cidr-manager/internal/aws"
+	"github.com/asafdavid23/vpc-cidr-manager/internal/helpers"
 	"github.com/asafdavid23/vpc-cidr-manager/internal/logging"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/spf13/cobra"
@@ -22,10 +23,11 @@ var createTableCmd = &cobra.Command{
 		tableName := viper.GetString("dynamodb.tableName")
 		logger := logging.NewLogger(logLevel)
 		ctx := context.TODO()
+		stackName := "vpc-cidr-manager-dynamodb-table"
 		region := viper.GetString("global.region")
 
 		if region == "" {
-			logger.Fatal("AWS_REGION environment variable is not set")
+			logger.Fatal("region is not set")
 		}
 
 		cfg, err := config.LoadDefaultConfig(ctx, config.WithRegion(region))
@@ -34,20 +36,42 @@ var createTableCmd = &cobra.Command{
 			logger.Fatal(err)
 		}
 
-		logger.Debug("Initializing DynamoDB client")
-		client, err := internalAws.GetDynamoDBClient(cfg)
+		dynamodbTableTemplateFile := "templates/cloudformation/dynamodb_table.yml"
+
+		data := helpers.DynamoDBTableTemplateData{
+			TableName: tableName,
+		}
+
+		renderedTemplate, err := helpers.LoadAndRenderCFNTemplate(dynamodbTableTemplateFile, data)
+
 		if err != nil {
 			logger.Fatal(err)
 		}
 
-		logger.Debug("Creating DynamoDB table")
-		err = internalAws.CreateDynamoDBTable(ctx, client, tableName, logger)
+		logger.Debugf("Rendered template: %s", renderedTemplate)
+
+		logger.Debug("Iinitializing CloudFormation client")
+		cfnClient, err := internalAws.InitializeCFNClient(cfg)
 
 		if err != nil {
 			logger.Fatal(err)
 		}
 
-		logger.Infof("%s DynamoDB table created successfully", tableName)
+		logger.Debug("Creating cloudformation stack")
+
+		output, err := internalAws.CreateCFNStack(ctx, cfnClient, stackName, renderedTemplate)
+
+		if err != nil {
+			logger.Fatal(err)
+		}
+
+		err = internalAws.WaitForStackToBeCreated(ctx, cfnClient, stackName)
+
+		if err != nil {
+			logger.Fatal(err)
+		}
+
+		logger.Infof("Stack %s created successfully", *output.StackId)
 	},
 }
 

@@ -31,7 +31,7 @@ var createAssumedRoleCmd = &cobra.Command{
 		region := viper.GetString("global.region")
 
 		if region == "" {
-			logger.Fatal("AWS_REGION environment variable is not set")
+			logger.Fatal("region is not set")
 		}
 
 		cfg, err := config.LoadDefaultConfig(ctx, config.WithRegion(region))
@@ -47,7 +47,7 @@ var createAssumedRoleCmd = &cobra.Command{
 			Principal: assumeRolePrincipal,
 		}
 
-		renderedTemplate, err := helpers.LoadAndRenderTemplate(iamTemplateFile, data)
+		renderedTemplate, err := helpers.LoadAndRenderIAMTemplate(iamTemplateFile, data)
 
 		if err != nil {
 			logger.Fatal(err)
