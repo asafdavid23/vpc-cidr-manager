@@ -16,8 +16,7 @@ var createCmd = &cobra.Command{
 }
 
 func init() {
-	// rootCmd.AddCommand(createCmd)
-	createCmd.AddCommand(iaacCmd)
+	iaacCmd.AddCommand(createCmd)
 
 	// Here you will define your flags and configuration settings.
 
