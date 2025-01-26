@@ -5,13 +5,13 @@ package cmd
 
 import (
 	"context"
-	"os"
 
 	internalAws "github.com/asafdavid23/vpc-cidr-manager/internal/aws"
 	"github.com/asafdavid23/vpc-cidr-manager/internal/logging"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // importCidrCmd represents the importCidr command
@@ -26,13 +26,8 @@ var importCidrCmd = &cobra.Command{
 		tableName := viper.GetString("dynamodb.tableName")
 		logger := logging.NewLogger(logLevel)
 		ctx := context.TODO()
-<<<<<<< Updated upstream
-		assumedRoleArn := "arn:aws:iam::" + account + ":role/" + roleName
-		region := os.Getenv("AWS_REGION")
-=======
 		assumedRoleArn := "arn:aws:iam::" + account + ":role/earnix/" + roleName
 		region := viper.GetString("global.region")
->>>>>>> Stashed changes
 
 		if region == "" {
 			logger.Fatal("AWS_REGION environment variable is not set")

@@ -5,13 +5,13 @@ package cmd
 
 import (
 	"context"
-	"os"
 
 	internalAws "github.com/asafdavid23/vpc-cidr-manager/internal/aws"
 	"github.com/asafdavid23/vpc-cidr-manager/internal/helpers"
 	"github.com/asafdavid23/vpc-cidr-manager/internal/logging"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // createTableCmd represents the createTable command
@@ -23,12 +23,8 @@ var createTableCmd = &cobra.Command{
 		tableName, err := cmd.Flags().GetString("name")
 		logger := logging.NewLogger(logLevel)
 		ctx := context.TODO()
-<<<<<<< Updated upstream
-		region := os.Getenv("AWS_REGION")
-=======
 		stackName := "vpc-cidr-manager-dynamodb-table"
 		region := viper.GetString("global.region")
->>>>>>> Stashed changes
 
 		if region == "" {
 			logger.Fatal("region is not set")
