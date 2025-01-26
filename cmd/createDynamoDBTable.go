@@ -25,7 +25,7 @@ var createDynamoDBTableCmd = &cobra.Command{
 		ctx := context.TODO()
 		stackName := "vpc-cidr-manager-dynamodb-table"
 		dryRun, err := cmd.Flags().GetBool("dry-run")
-		generateTemplate, err := cmd.Flags().GetBool("generate-iaac-template")
+		// generateTemplate, err := cmd.Flags().GetBool("generate-iaac-template")
 		region := viper.GetString("global.region")
 
 		if region == "" {
